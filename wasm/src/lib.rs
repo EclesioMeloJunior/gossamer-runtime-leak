@@ -1,3 +1,6 @@
+#![cfg_attr(not(feature = "std"), no_std)]
+pub extern crate alloc;
+
 use crate::models::Process;
 use core::slice;
 use core::str;
@@ -16,9 +19,7 @@ pub extern "C" fn transform(ptr: i32, len: i32) -> i64 {
             let result = input_model.process();
             serde_json::to_string(&result).unwrap()
         }
-        Err(err) => {
-            panic!(err);
-        }
+        Err(err) => return 0,
     };
 
     cantor_pairing(output.as_ptr() as i32, output.len() as i32)

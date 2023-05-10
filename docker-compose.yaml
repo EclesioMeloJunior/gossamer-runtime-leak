@@ -3,10 +3,13 @@ version: "3.7"
 services:
   wasmer-leak:
     build: .
+    platform: linux/amd64
     tty: true
+    ports:
+      - 6060:6060/tcp
     deploy:
       resources:
         limits:
-          memory: 128m
+          memory: 1GB
         reservations:
           memory: 10m

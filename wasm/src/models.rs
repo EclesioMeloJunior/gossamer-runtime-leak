@@ -19,7 +19,7 @@ impl Process for InputModel {
         match serde_json::to_value(output_data) {
             Ok(parsed_json) => parsed_json,
             Err(err) => {
-                panic!(err);
+                panic!();
             }
         }
     }
