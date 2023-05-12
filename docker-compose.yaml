@@ -1,8 +1,29 @@
 version: "3.7"
 
 services:
-  wasmer-leak:
-    build: .
+  mem_imported:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        FOLDER: mem_imported
+    platform: linux/amd64
+    tty: true
+    ports:
+      - 6060:6060/tcp
+    deploy:
+      resources:
+        limits:
+          memory: 1GB
+        reservations:
+          memory: 10m
+
+  mem_exported:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        FOLDER: mem_exported
     platform: linux/amd64
     tty: true
     ports:
