@@ -2,6 +2,7 @@ FROM golang:1.19 AS go-base
 WORKDIR /src
 ARG CGO_ENABLED=1
 ENV CGO_ENABLED="${CGO_ENABLED}"
+ENV GODEBUG=gctrace=1
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .

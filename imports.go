@@ -5,6 +5,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/ChainSafe/gossamer/lib/runtime"
 	"github.com/ChainSafe/gossamer/pkg/scale"
@@ -189,8 +190,33 @@ func ext_misc_print_utf8_version_1(env interface{}, args []wasmer.Value) ([]wasm
 
 //export ext_misc_runtime_version_version_1
 func ext_misc_runtime_version_version_1(env interface{}, args []wasmer.Value) ([]wasmer.Value, error) {
-	fmt.Println("BEING CALLED!!")
-	version := runtime.Version{}
+	version := runtime.Version{
+		SpecName:         []byte("westend"),
+		ImplName:         []byte("gossamer"),
+		AuthoringVersion: 789,
+		SpecVersion:      1,
+		ImplVersion:      1,
+		APIItems: []runtime.APIItem{
+			{
+				Name: [8]byte{0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8},
+				Ver:  0,
+			},
+			{
+				Name: [8]byte{0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8},
+				Ver:  0,
+			},
+			{
+				Name: [8]byte{0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8},
+				Ver:  0,
+			},
+			{
+				Name: [8]byte{0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8},
+				Ver:  0,
+			},
+		},
+		TransactionVersion: 1,
+		StateVersion:       1,
+	}
 
 	// Note the encoding contains all the latest Core_version fields as defined in
 	// https://spec.polkadot.network/#defn-rt-core-version
@@ -235,7 +261,7 @@ func toWasmMemory(context *Runtime, data []byte) (
 	pointerSize int64, err error) {
 	size := uint32(len(data))
 
-	ptr, err := context.allocator.Allocate(context.mem, size)
+	ptr, err := context.allocator.Allocate(size)
 	if err != nil {
 		return 0, fmt.Errorf("allocating: %w", err)
 	}
@@ -321,7 +347,7 @@ func ext_allocator_free_version_1(env interface{}, args []wasmer.Value) ([]wasme
 	}
 
 	// Deallocate memory
-	err := runtimeCtx.allocator.Deallocate(runtimeCtx.mem, uint32(addr))
+	err := runtimeCtx.allocator.Deallocate(uint32(addr))
 	if err != nil {
 		panic(err)
 	}
@@ -338,17 +364,27 @@ func ext_allocator_malloc_version_1(env interface{}, args []wasmer.Value) ([]was
 	ctx := env.(*Runtime)
 
 	// Allocate memory
-	res, err := ctx.allocator.Allocate(ctx.mem, uint32(size))
+	res, err := ctx.allocator.Allocate(uint32(size))
 	if err != nil {
 		panic(err)
 	}
 
 	castedRes, err := safeCastInt32(res)
 	if err != nil {
+		//logger.Errorf("failed to safely cast pointer: %s", err)
 		return []wasmer.Value{wasmer.NewI32(0)}, err
 	}
 
 	return []wasmer.Value{wasmer.NewI32(castedRes)}, nil
+
+	//return []wasmer.Value{wasmer.NewI32(int32(res))}, nil
+}
+
+func safeCastInt32(value uint32) (int32, error) {
+	if value > math.MaxInt32 {
+		return 0, fmt.Errorf("out of bounds")
+	}
+	return int32(value), nil
 }
 
 //export ext_hashing_blake2_128_version_1

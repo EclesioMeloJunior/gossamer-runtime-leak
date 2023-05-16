@@ -21,12 +21,10 @@ import (
 )
 
 // importsNodeRuntime returns the WASM imports for the node runtime.
-func importsNodeRuntime(store *wasmer.Store, memory *wasmer.Memory, rt *Runtime) *wasmer.ImportObject {
+func importsNodeRuntime(store *wasmer.Store, rt *Runtime) *wasmer.ImportObject {
 	importsMap := make(map[string]wasmer.IntoExtern)
 
-	if memory != nil {
-		importsMap["memory"] = memory
-	}
+	importsMap["memory"] = rt.wasmerMemory
 
 	importsMap["ext_logging_log_version_1"] = wasmer.NewFunctionWithEnvironment(store,
 		wasmer.NewFunctionType(

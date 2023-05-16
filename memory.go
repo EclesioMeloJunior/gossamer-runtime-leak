@@ -20,6 +20,10 @@ func checkBounds(value uint64) (uint32, error) {
 	return uint32(value), nil
 }
 
+func NewMemImplementation(memory *wasmer.Memory) *MemoryImpl {
+	return &MemoryImpl{memory}
+}
+
 // Data returns the memory's data
 func (m *MemoryImpl) Data() []byte {
 	return m.memory.Data()
@@ -27,18 +31,14 @@ func (m *MemoryImpl) Data() []byte {
 
 // Length returns the memory's length
 func (m *MemoryImpl) Length() uint32 {
-	value, err := checkBounds(uint64(m.memory.DataSize()))
-	if err != nil {
-		panic(err)
-	}
-	return value
+	return uint32(m.memory.DataSize())
 }
 
 // Grow grows the memory by the given number of pages
 func (m *MemoryImpl) Grow(numPages uint32) error {
 	ok := m.memory.Grow(wasmer.Pages(numPages))
 	if !ok {
-		return errors.New("cannot grow mem")
+		panic("cannot grow memory")
 	}
 	return nil
 }
